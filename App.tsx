@@ -52,12 +52,15 @@ const AppContent: React.FC = () => {
 
   // We move the base songs into state so that edits (like custom covers) persist across the session
   const [librarySongs, setLibrarySongs] = useState<Song[]>(SONGS);
-  const [playlists, setPlaylists] = useState<Playlist[]>(() =>
-    INITIAL_PLAYLISTS.map(p => ({ ...p, songs: [...p.songs] }))
-  );
+  /* 
+    INITIAL_PLAYLISTS is now empty, so we default to an empty array.
+    We also removed the deep copy logic since it's empty anyway, but keeping the structure is fine.
+  */
+  const [playlists, setPlaylists] = useState<Playlist[]>([]);
   const [localSongs, setLocalSongs] = useState<Song[]>([]);
-  const [selectedPlaylistId, setSelectedPlaylistId] = useState<string>(INITIAL_PLAYLISTS[0].id);
-  const [currentSong, setCurrentSong] = useState<Song | null>(INITIAL_PLAYLISTS[0].songs[0]);
+  // Default to 'cloud' since we have no default playlists
+  const [selectedPlaylistId, setSelectedPlaylistId] = useState<string>('cloud');
+  const [currentSong, setCurrentSong] = useState<Song | null>(null);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
@@ -164,7 +167,14 @@ const AppContent: React.FC = () => {
       if (foundAlbum) return foundAlbum;
     }
 
-    return playlists.find(p => p.id === selectedPlaylistId) || playlists[0];
+    return playlists.find(p => p.id === selectedPlaylistId) || playlists[0] || {
+      id: 'empty',
+      name: 'No Playlist',
+      description: '',
+      coverUrl: '',
+      songs: [],
+      type: 'playlist'
+    };
   }, [selectedPlaylistId, playlists, likedSongs, localSongs, cloudSongs, publicSongs, recentlyPlayed, derivedAlbums]);
 
   // Sync state with Electron for mini player
