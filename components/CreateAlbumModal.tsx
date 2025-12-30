@@ -21,7 +21,7 @@ const CreateAlbumModal: React.FC<CreateAlbumModalProps> = ({ isOpen, onClose, on
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files) {
-            const newEntries = Array.from(e.target.files).map(file => ({
+            const newEntries = Array.from(e.target.files).map((file: File) => ({
                 file,
                 title: file.name.replace(/\.[^/.]+$/, ""),
                 id: Math.random().toString(36).substr(2, 9)
