@@ -85,8 +85,10 @@ const AppContent: React.FC = () => {
   }, [cloudSongs, librarySongs, localSongs]);
 
   // Derive unique albums from all available sources
+  // Derive unique albums from all available sources
   const derivedAlbums = useMemo((): Playlist[] => {
-    const allAvailableSongs = [...allSongs, ...likedSongs];
+    // Include public songs so "Discover" albums show up too
+    const allAvailableSongs = [...allSongs, ...likedSongs, ...publicSongs];
     const albumMap = new Map<string, Playlist>();
 
     allAvailableSongs.forEach(song => {
@@ -108,7 +110,7 @@ const AppContent: React.FC = () => {
     });
 
     return Array.from(albumMap.values());
-  }, [allSongs, likedSongs]);
+  }, [allSongs, likedSongs, publicSongs]);
 
   const activePlaylist = useMemo((): Playlist => {
     if (selectedPlaylistId === 'liked') {
