@@ -140,8 +140,8 @@ const Sidebar: React.FC<SidebarProps> = ({
       {/* Navigation Top */}
       <div className="bg-[#121212] rounded-lg p-3 space-y-1">
         <div
-          onClick={() => onPlaylistSelect(PLAYLISTS[0].id)}
-          className={`flex items-center space-x-4 p-3 rounded-md cursor-pointer transition-colors font-bold ${selectedPlaylistId === PLAYLISTS[0].id ? 'text-white' : 'text-gray-400 hover:text-white'}`}
+          onClick={() => onPlaylistSelect(PLAYLISTS[0]?.id || 'cloud')}
+          className={`flex items-center space-x-4 p-3 rounded-md cursor-pointer transition-colors font-bold ${selectedPlaylistId === (PLAYLISTS[0]?.id || 'cloud') ? 'text-white' : 'text-gray-400 hover:text-white'}`}
         >
           <i className="fas fa-home text-xl"></i>
           <span>Home</span>
