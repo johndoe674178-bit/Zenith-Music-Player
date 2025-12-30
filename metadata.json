@@ -1,0 +1,8 @@
+
+{
+  "name": "Zenith Music Player",
+  "description": "A high-fidelity music player interface inspired by Spotify, featuring a responsive layout, interactive player controls, and curated playlists.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}

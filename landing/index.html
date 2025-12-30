@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zenith Music Player - Your Music, Elevated</title>
+    <link rel="icon" type="image/png" href="../public/logo.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-content">
+            <div class="logo">
+                <img src="../public/logo.png" alt="Zenith" class="logo-img">
+                <span class="logo-text">Zenith</span>
+            </div>
+            <div class="nav-links">
+                <a href="#features">Features</a>
+                <a href="#download">Download</a>
+                <a href="http://localhost:3000" class="btn-secondary">Open Web App</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <div class="hero-badge">
+                <i class="fas fa-bolt"></i>
+                <span>Now with Cloud Storage</span>
+            </div>
+            <h1 class="hero-title">
+                Your Music,<br>
+                <span class="gradient-text">Elevated</span>
+            </h1>
+            <p class="hero-subtitle">
+                A beautiful, powerful music player for your desktop and browser.
+                Stream your collection, discover new music, and enjoy stunning visuals.
+            </p>
+            <div class="hero-cta">
+                <a href="#download" class="btn-primary">
+                    <i class="fas fa-download"></i>
+                    Download for Free
+                </a>
+                <a href="http://localhost:3000" class="btn-outline">
+                    <i class="fas fa-play"></i>
+                    Try in Browser
+                </a>
+            </div>
+            <div class="hero-stats">
+                <div class="stat">
+                    <span class="stat-value">100%</span>
+                    <span class="stat-label">Free</span>
+                </div>
+                <div class="stat-divider"></div>
+                <div class="stat">
+                    <span class="stat-value">Cross Platform</span>
+                    <span class="stat-label">Windows, Mac, Linux</span>
+                </div>
+                <div class="stat-divider"></div>
+                <div class="stat">
+                    <span class="stat-value">Open Source</span>
+                    <span class="stat-label">MIT License</span>
+                </div>
+            </div>
+        </div>
+        <div class="hero-image">
+            <div class="app-mockup">
+                <div class="mockup-glow"></div>
+                <img src="screenshot.png" alt="Zenith Music Player" class="mockup-img">
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="features">
+        <div class="section-header">
+            <span class="section-tag">Features</span>
+            <h2 class="section-title">Everything You Need</h2>
+            <p class="section-subtitle">Packed with powerful features to enhance your listening experience</p>
+        </div>
+
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                </div>
+                <h3>Cloud Storage</h3>
+                <p>Upload and access your music from anywhere. Your library follows you.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-search"></i>
+                </div>
+                <h3>Smart Search</h3>
+                <p>Find any song, album, or artist instantly with our powerful search.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-list-ol"></i>
+                </div>
+                <h3>Queue Management</h3>
+                <p>Build the perfect playlist on the fly. Add songs, reorder, play next.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-moon"></i>
+                </div>
+                <h3>Sleep Timer</h3>
+                <p>Fall asleep to your favorite tunes. Music stops when the timer ends.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-keyboard"></i>
+                </div>
+                <h3>Keyboard Shortcuts</h3>
+                <p>Control playback, volume, and navigation without touching your mouse.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-compress-alt"></i>
+                </div>
+                <h3>Mini Player</h3>
+                <p>Compact, always-on-top player for when you need to focus on other things.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Download Section -->
+    <section id="download" class="download">
+        <div class="download-content">
+            <h2 class="section-title">Get Zenith Now</h2>
+            <p class="section-subtitle">Available on all major platforms</p>
+
+            <div class="download-cards">
+                <div class="download-card">
+                    <i class="fab fa-windows"></i>
+                    <h3>Windows</h3>
+                    <p>Windows 10 or later</p>
+                    <a href="../release/Zenith Music Player Setup 1.0.0.exe" class="btn-download">
+                        <i class="fas fa-download"></i>
+                        Download .exe
+                    </a>
+                    <a href="../release/Zenith Music Player 1.0.0.exe" class="btn-download-alt">
+                        Portable Version
+                    </a>
+                </div>
+
+                <div class="download-card">
+                    <i class="fab fa-apple"></i>
+                    <h3>macOS</h3>
+                    <p>macOS 10.15 or later</p>
+                    <a href="#" class="btn-download disabled">
+                        <i class="fas fa-clock"></i>
+                        Coming Soon
+                    </a>
+                </div>
+
+                <div class="download-card">
+                    <i class="fab fa-linux"></i>
+                    <h3>Linux</h3>
+                    <p>Ubuntu, Debian, Fedora</p>
+                    <a href="#" class="btn-download disabled">
+                        <i class="fas fa-clock"></i>
+                        Coming Soon
+                    </a>
+                </div>
+            </div>
+
+            <div class="web-option">
+                <p>Or use it in your browser - no download required</p>
+                <a href="http://localhost:3000" class="btn-primary btn-large">
+                    <i class="fas fa-globe"></i>
+                    Launch Web App
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-brand">
+                <img src="../public/logo.png" alt="Zenith" class="footer-logo">
+                <span>Zenith Music Player</span>
+            </div>
+            <div class="footer-links">
+                <a href="#features">Features</a>
+                <a href="#download">Download</a>
+                <a href="http://localhost:3000">Web App</a>
+            </div>
+            <p class="copyright">© 2025 Zenith Music Player. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+
+</html>
