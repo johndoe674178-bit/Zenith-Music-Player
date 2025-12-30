@@ -3,7 +3,7 @@ import React, { useState, useRef } from 'react';
 interface CreateAlbumModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onUploadAlbum: (files: File[], metadata: { title: string; artist: string; cover?: File }) => Promise<any>;
+    onUploadAlbum: (songs: { file: File, title: string }[], metadata: { title: string; artist: string; cover?: File }) => Promise<any>;
 }
 
 const CreateAlbumModal: React.FC<CreateAlbumModalProps> = ({ isOpen, onClose, onUploadAlbum }) => {
@@ -11,7 +11,7 @@ const CreateAlbumModal: React.FC<CreateAlbumModalProps> = ({ isOpen, onClose, on
     const [artist, setArtist] = useState('');
     const [coverFile, setCoverFile] = useState<File | null>(null);
     const [coverPreview, setCoverPreview] = useState<string | null>(null);
-    const [files, setFiles] = useState<File[]>([]);
+    const [songEntries, setSongEntries] = useState<{ file: File, title: string, id: string }[]>([]);
     const [uploading, setUploading] = useState(false);
 
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -21,7 +21,12 @@ const CreateAlbumModal: React.FC<CreateAlbumModalProps> = ({ isOpen, onClose, on
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files) {
-            setFiles(prev => [...prev, ...Array.from(e.target.files || [])]);
+            const newEntries = Array.from(e.target.files).map(file => ({
+                file,
+                title: file.name.replace(/\.[^/.]+$/, ""),
+                id: Math.random().toString(36).substr(2, 9)
+            }));
+            setSongEntries(prev => [...prev, ...newEntries]);
         }
     };
 
@@ -35,32 +40,38 @@ const CreateAlbumModal: React.FC<CreateAlbumModalProps> = ({ isOpen, onClose, on
 
     const moveSong = (index: number, direction: 'up' | 'down') => {
         if (direction === 'up' && index > 0) {
-            const newFiles = [...files];
-            [newFiles[index - 1], newFiles[index]] = [newFiles[index], newFiles[index - 1]];
-            setFiles(newFiles);
-        } else if (direction === 'down' && index < files.length - 1) {
-            const newFiles = [...files];
-            [newFiles[index + 1], newFiles[index]] = [newFiles[index], newFiles[index + 1]];
-            setFiles(newFiles);
+            const newEntries = [...songEntries];
+            [newEntries[index - 1], newEntries[index]] = [newEntries[index], newEntries[index - 1]];
+            setSongEntries(newEntries);
+        } else if (direction === 'down' && index < songEntries.length - 1) {
+            const newEntries = [...songEntries];
+            [newEntries[index + 1], newEntries[index]] = [newEntries[index], newEntries[index + 1]];
+            setSongEntries(newEntries);
         }
     };
 
     const removeSong = (index: number) => {
-        setFiles(files.filter((_, i) => i !== index));
+        setSongEntries(songEntries.filter((_, i) => i !== index));
+    };
+
+    const updateSongTitle = (index: number, newTitle: string) => {
+        const newEntries = [...songEntries];
+        newEntries[index].title = newTitle;
+        setSongEntries(newEntries);
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!title || !artist || files.length === 0) return;
+        if (!title || !artist || songEntries.length === 0) return;
 
         setUploading(true);
         try {
-            await onUploadAlbum(files, { title, artist, cover: coverFile || undefined });
+            await onUploadAlbum(songEntries, { title, artist, cover: coverFile || undefined });
             onClose();
             // Reset form
             setTitle('');
             setArtist('');
-            setFiles([]);
+            setSongEntries([]);
             setCoverFile(null);
             setCoverPreview(null);
         } catch (error) {
@@ -146,7 +157,7 @@ const CreateAlbumModal: React.FC<CreateAlbumModalProps> = ({ isOpen, onClose, on
                         {/* Songs List */}
                         <div>
                             <div className="flex justify-between items-center mb-4">
-                                <h3 className="text-lg font-semibold text-white">Songs ({files.length})</h3>
+                                <h3 className="text-lg font-semibold text-white">Songs ({songEntries.length})</h3>
                                 <button
                                     type="button"
                                     onClick={() => fileInputRef.current?.click()}
@@ -164,19 +175,29 @@ const CreateAlbumModal: React.FC<CreateAlbumModalProps> = ({ isOpen, onClose, on
                                 />
                             </div>
 
-                            {files.length === 0 ? (
+                            {songEntries.length === 0 ? (
                                 <div className="text-center py-10 border-2 border-dashed border-neutral-800 rounded-xl">
                                     <p className="text-neutral-500">No songs added yet.</p>
                                     <p className="text-sm text-neutral-600 mt-1">Click "Add Songs" to verify track order</p>
                                 </div>
                             ) : (
                                 <div className="space-y-2">
-                                    {files.map((file, index) => (
-                                        <div key={`${file.name}-${index}`} className="flex items-center gap-3 bg-neutral-800/50 p-3 rounded-lg group">
-                                            <span className="text-neutral-500 font-mono w-6 text-center">{index + 1}</span>
-                                            <div className="flex-1 min-w-0">
-                                                <p className="text-white text-sm truncate">{file.name}</p>
-                                                <p className="text-neutral-500 text-xs">{Math.round(file.size / 1024 / 1024 * 10) / 10} MB</p>
+                                    {songEntries.map((entry, index) => (
+                                        <div key={entry.id} className="flex items-center gap-3 bg-neutral-800/50 p-2 rounded-lg group">
+                                            <span className="text-neutral-500 font-mono w-6 text-center text-sm">{index + 1}</span>
+
+                                            <div className="flex-1 min-w-0 flex flex-col">
+                                                <input
+                                                    type="text"
+                                                    value={entry.title}
+                                                    onChange={(e) => updateSongTitle(index, e.target.value)}
+                                                    className="bg-transparent text-white text-sm border-b border-transparent focus:border-emerald-500 focus:outline-none w-full"
+                                                    placeholder="Song Title"
+                                                />
+                                                <div className="flex items-center justify-between mt-1">
+                                                    <p className="text-neutral-500 text-xs truncate">{entry.file.name}</p>
+                                                    <p className="text-neutral-500 text-xs">{Math.round(entry.file.size / 1024 / 1024 * 10) / 10} MB</p>
+                                                </div>
                                             </div>
 
                                             <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition">
@@ -192,7 +213,7 @@ const CreateAlbumModal: React.FC<CreateAlbumModalProps> = ({ isOpen, onClose, on
                                                 <button
                                                     type="button"
                                                     onClick={() => moveSong(index, 'down')}
-                                                    disabled={index === files.length - 1}
+                                                    disabled={index === songEntries.length - 1}
                                                     className="p-2 text-neutral-400 hover:text-white disabled:opacity-30"
                                                     title="Move Down"
                                                 >
@@ -227,7 +248,7 @@ const CreateAlbumModal: React.FC<CreateAlbumModalProps> = ({ isOpen, onClose, on
                     </button>
                     <button
                         onClick={handleSubmit}
-                        disabled={uploading || files.length === 0 || !title || !artist}
+                        disabled={uploading || songEntries.length === 0 || !title || !artist}
                         className="px-8 py-2 rounded-full font-bold bg-emerald-500 text-black hover:bg-emerald-400 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                     >
                         {uploading ? (

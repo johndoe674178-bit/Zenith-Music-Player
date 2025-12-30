@@ -10,7 +10,7 @@ interface UseSupabaseSongsReturn {
     uploadSong: (file: File, metadata: Partial<Song>) => Promise<Song | null>;
     deleteSong: (songId: string) => Promise<boolean>;
     updateSong: (songId: string, updates: { title: string; artist: string; album: string }) => Promise<boolean>;
-    uploadAlbum: (files: File[], metadata: { title: string; artist: string; cover?: File }) => Promise<Song[]>;
+    uploadAlbum: (songs: { file: File, title: string }[], metadata: { title: string; artist: string; cover?: File }) => Promise<Song[]>;
     togglePublic: (songId: string, isPublic: boolean) => Promise<boolean>;
     refreshSongs: () => Promise<void>;
 }
@@ -234,7 +234,7 @@ export const useSupabaseSongs = (): UseSupabaseSongsReturn => {
         }
     }, [user]);
 
-    const uploadAlbum = useCallback(async (files: File[], metadata: { title: string; artist: string; cover?: File }): Promise<Song[]> => {
+    const uploadAlbum = useCallback(async (songs: { file: File, title: string }[], metadata: { title: string; artist: string; cover?: File }): Promise<Song[]> => {
         if (!user) {
             setError('You must be logged in to upload songs');
             return [];
@@ -263,8 +263,8 @@ export const useSupabaseSongs = (): UseSupabaseSongsReturn => {
             }
 
             // 2. Upload Each Song
-            for (let i = 0; i < files.length; i++) {
-                const file = files[i];
+            for (let i = 0; i < songs.length; i++) {
+                const { file, title } = songs[i];
                 const trackNumber = i + 1; // 1-based index
 
                 // Generate unique file path
@@ -286,7 +286,7 @@ export const useSupabaseSongs = (): UseSupabaseSongsReturn => {
                     .from('songs')
                     .insert({
                         user_id: user.id,
-                        title: file.name.replace(/\.[^/.]+$/, ''), // Default title from filename
+                        title: title || file.name.replace(/\.[^/.]+$/, ''), // Use provided title or fallback
                         artist: metadata.artist || 'Unknown Artist',
                         album: metadata.title || 'Unknown Album',
                         duration: duration,

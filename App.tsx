@@ -373,14 +373,14 @@ const AppContent: React.FC = () => {
     }
   }, [user, profile, uploadSong]);
 
-  const handleCreateAlbum = useCallback(async (files: File[], metadata: { title: string; artist: string; cover?: File }) => {
+  const handleCreateAlbum = useCallback(async (songs: { file: File, title: string }[], metadata: { title: string; artist: string; cover?: File }) => {
     if (!user) {
       setShowAuthModal(true);
       return;
     }
 
     // We pass the uploadAlbum function directly to the modal, but we could wrap it here if we wanted addl logic
-    const newSongs = await uploadAlbum(files, metadata);
+    const newSongs = await uploadAlbum(songs, metadata);
     if (newSongs.length > 0) {
       showToast('Album created successfully!', 'success', 'fas fa-compact-disc');
       setSelectedPlaylistId('cloud');
