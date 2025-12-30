@@ -69,6 +69,9 @@ const AppContent: React.FC = () => {
   const [queue, setQueue] = useState<Song[]>([]);
   const [showQueue, setShowQueue] = useState(false);
 
+  // Mobile menu state
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
   const { showToast } = useToast();
 
   // Combine cloud songs with local/library songs
@@ -452,33 +455,51 @@ const AppContent: React.FC = () => {
   return (
     <div className="flex flex-col h-screen overflow-hidden bg-black select-none text-white font-['Figtree']">
       <div className="flex flex-1 overflow-hidden">
-        <Sidebar
-          selectedPlaylistId={selectedPlaylistId}
-          onPlaylistSelect={setSelectedPlaylistId}
-          onAddSongToLibrary={handleAddSongToLibrary}
-          onImportLocalSongs={handleImportLocalSongs}
-          onUploadToCloud={handleUploadToCloud}
-          customPlaylists={playlists}
-          isLoggedIn={!!user}
-          uploading={songsLoading}
-        />
+        {/* Mobile Menu Overlay */}
+        {mobileMenuOpen && (
+          <div
+            className="mobile-menu-overlay active lg:hidden"
+            onClick={() => setMobileMenuOpen(false)}
+          />
+        )}
 
-        <div className="flex-1 flex flex-col overflow-hidden relative">
-          <div className="absolute top-0 left-0 right-0 h-16 flex items-center justify-between px-8 z-20 pointer-events-none">
-            <div className="flex space-x-2 pointer-events-auto">
+        {/* Sidebar with mobile toggle */}
+        <div className={`sidebar-container ${mobileMenuOpen ? 'open' : ''}`}>
+          <Sidebar
+            selectedPlaylistId={selectedPlaylistId}
+            onPlaylistSelect={setSelectedPlaylistId}
+            onAddSongToLibrary={handleAddSongToLibrary}
+            onImportLocalSongs={handleImportLocalSongs}
+            onUploadToCloud={handleUploadToCloud}
+            customPlaylists={playlists}
+            isLoggedIn={!!user}
+            uploading={songsLoading}
+          />
+        </div>
+
+        <div className="flex-1 flex flex-col overflow-hidden relative main-content">
+          <div className="absolute top-0 left-0 right-0 h-16 flex items-center justify-between px-4 md:px-8 z-20 pointer-events-none">
+            {/* Hamburger Menu Button */}
+            <div className="flex items-center space-x-2 pointer-events-auto">
+              <button
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="hamburger-btn w-10 h-10 rounded-full bg-black/40 text-white flex items-center justify-center hover:bg-black/60 transition-colors lg:hidden"
+              >
+                <i className={`fas ${mobileMenuOpen ? 'fa-times' : 'fa-bars'}`}></i>
+              </button>
               <button
                 onClick={() => window.history.back()}
-                className="w-8 h-8 rounded-full bg-black/40 text-white flex items-center justify-center hover:bg-black/60 transition-colors"
+                className="w-8 h-8 rounded-full bg-black/40 text-white flex items-center justify-center hover:bg-black/60 transition-colors hidden md:flex"
               >
                 <i className="fas fa-chevron-left"></i>
               </button>
-              <button className="w-8 h-8 rounded-full bg-black/40 text-white flex items-center justify-center hover:bg-black/60 transition-colors">
+              <button className="w-8 h-8 rounded-full bg-black/40 text-white flex items-center justify-center hover:bg-black/60 transition-colors hidden md:flex">
                 <i className="fas fa-chevron-right"></i>
               </button>
             </div>
 
-            {/* Search Bar */}
-            <div className="flex-1 max-w-md mx-8 pointer-events-auto">
+            {/* Search Bar - hide on very small screens */}
+            <div className="flex-1 max-w-md mx-2 md:mx-8 pointer-events-auto hidden sm:block search-container">
               <SearchBar
                 songs={allSongs}
                 onPlaySong={handlePlaySong}
