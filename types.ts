@@ -10,6 +10,7 @@ export interface Song {
   audioUrl: string;
   isLocal?: boolean;
   isPublic?: boolean;
+  trackNumber?: number; // Added for album ordering
 }
 
 export interface Playlist {

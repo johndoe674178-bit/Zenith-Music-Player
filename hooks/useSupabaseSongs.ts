@@ -10,6 +10,7 @@ interface UseSupabaseSongsReturn {
     uploadSong: (file: File, metadata: Partial<Song>) => Promise<Song | null>;
     deleteSong: (songId: string) => Promise<boolean>;
     updateSong: (songId: string, updates: { title: string; artist: string; album: string }) => Promise<boolean>;
+    uploadAlbum: (files: File[], metadata: { title: string; artist: string; cover?: File }) => Promise<Song[]>;
     togglePublic: (songId: string, isPublic: boolean) => Promise<boolean>;
     refreshSongs: () => Promise<void>;
 }
@@ -233,11 +234,104 @@ export const useSupabaseSongs = (): UseSupabaseSongsReturn => {
         }
     }, [user]);
 
+    const uploadAlbum = useCallback(async (files: File[], metadata: { title: string; artist: string; cover?: File }): Promise<Song[]> => {
+        if (!user) {
+            setError('You must be logged in to upload songs');
+            return [];
+        }
+
+        setLoading(true);
+        setError(null);
+        const uploadedSongs: Song[] = [];
+
+        try {
+            // 1. Upload Cover Art (if provided)
+            let coverUrl = 'https://picsum.photos/seed/' + encodeURIComponent(metadata.title) + '/300/300';
+
+            if (metadata.cover) {
+                const fileExt = metadata.cover.name.split('.').pop();
+                const fileName = `${user.id}/covers/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+
+                const { error: uploadError } = await supabase.storage
+                    .from('music')
+                    .upload(fileName, metadata.cover, { cacheControl: '3600', upsert: false });
+
+                if (uploadError) throw uploadError;
+
+                const { data: { publicUrl } } = supabase.storage.from('music').getPublicUrl(fileName);
+                coverUrl = publicUrl;
+            }
+
+            // 2. Upload Each Song
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                const trackNumber = i + 1; // 1-based index
+
+                // Generate unique file path
+                const fileExt = file.name.split('.').pop();
+                const fileName = `${user.id}/${Date.now()}-${Math.random().toString(36).substring(7)}-${trackNumber}.${fileExt}`;
+
+                // Upload Audio
+                const { error: uploadError } = await supabase.storage
+                    .from('music')
+                    .upload(fileName, file, { cacheControl: '3600', upsert: false });
+
+                if (uploadError) throw uploadError;
+
+                const { data: { publicUrl } } = supabase.storage.from('music').getPublicUrl(fileName);
+                const duration = await getAudioDuration(file);
+
+                // Insert into DB
+                const { data: songData, error: insertError } = await supabase
+                    .from('songs')
+                    .insert({
+                        user_id: user.id,
+                        title: file.name.replace(/\.[^/.]+$/, ''), // Default title from filename
+                        artist: metadata.artist || 'Unknown Artist',
+                        album: metadata.title || 'Unknown Album',
+                        duration: duration,
+                        cover_url: coverUrl,
+                        audio_url: publicUrl,
+                        audio_path: fileName,
+                        track_number: trackNumber, // Save order
+                    })
+                    .select()
+                    .single();
+
+                if (insertError) throw insertError;
+
+                uploadedSongs.push({
+                    id: songData.id,
+                    user_id: songData.user_id,
+                    title: songData.title,
+                    artist: songData.artist,
+                    album: songData.album,
+                    duration: songData.duration,
+                    coverUrl: songData.cover_url,
+                    audioUrl: songData.audio_url,
+                    isPublic: songData.is_public || false,
+                    trackNumber: songData.track_number,
+                });
+            }
+
+            setSongs((prev) => [...uploadedSongs, ...prev]);
+            return uploadedSongs;
+
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'Failed to upload album');
+            // Consistent error handling - could implement rollback here in a real app
+            return [];
+        } finally {
+            setLoading(false);
+        }
+    }, [user]);
+
     return {
         songs,
         loading,
         error,
         uploadSong,
+        uploadAlbum,
         deleteSong,
         updateSong,
         togglePublic,

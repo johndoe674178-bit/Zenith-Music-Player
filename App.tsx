@@ -12,6 +12,7 @@ import QueuePanel from './components/QueuePanel';
 import SearchBar from './components/SearchBar';
 import SleepTimer from './components/SleepTimer';
 import SettingsModal from './components/SettingsModal';
+import CreateAlbumModal from './components/CreateAlbumModal';
 import { ToastProvider, useToast } from './components/Toast';
 import { AuthProvider, useAuth } from './components/AuthContext';
 import { useSupabaseSongs } from './hooks/useSupabaseSongs';
@@ -42,7 +43,7 @@ const isElectron = () => {
 
 const AppContent: React.FC = () => {
   const { user, loading: authLoading, signOut } = useAuth();
-  const { songs: cloudSongs, uploadSong, deleteSong, updateSong, togglePublic, loading: songsLoading } = useSupabaseSongs();
+  const { songs: cloudSongs, uploadSong, uploadAlbum, deleteSong, updateSong, togglePublic, loading: songsLoading } = useSupabaseSongs();
   const { likedSongs, likedSongIds, toggleLike } = useLikedSongs();
   const { publicSongs } = usePublicSongs();
   const { profile, updateDisplayName } = useProfile();
@@ -61,6 +62,7 @@ const AppContent: React.FC = () => {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
+  const [showCreateAlbumModal, setShowCreateAlbumModal] = useState(false);
   const [shuffle, setShuffle] = useState(false);
   const [repeat, setRepeat] = useState<RepeatMode>('off');
   const [editingSong, setEditingSong] = useState<Song | null>(null);
@@ -371,6 +373,22 @@ const AppContent: React.FC = () => {
     }
   }, [user, profile, uploadSong]);
 
+  const handleCreateAlbum = useCallback(async (files: File[], metadata: { title: string; artist: string; cover?: File }) => {
+    if (!user) {
+      setShowAuthModal(true);
+      return;
+    }
+
+    // We pass the uploadAlbum function directly to the modal, but we could wrap it here if we wanted addl logic
+    const newSongs = await uploadAlbum(files, metadata);
+    if (newSongs.length > 0) {
+      showToast('Album created successfully!', 'success', 'fas fa-compact-disc');
+      setSelectedPlaylistId('cloud');
+    } else {
+      showToast('Failed to create album', 'error', 'fas fa-exclamation-circle');
+    }
+  }, [user, uploadAlbum, showToast]);
+
   const handleUpdateSongCover = useCallback((songId: string, newCoverUrl: string, albumToApply?: string) => {
     const updateInList = (list: Song[]) => list.map(s => {
       const matches = albumToApply ? s.album === albumToApply : s.id === songId;
@@ -474,6 +492,7 @@ const AppContent: React.FC = () => {
             customPlaylists={playlists}
             isLoggedIn={!!user}
             uploading={songsLoading}
+            onCreateAlbum={() => setShowCreateAlbumModal(true)}
           />
         </div>
 
@@ -633,13 +652,18 @@ const AppContent: React.FC = () => {
         />
       )}
 
-      {/* Settings Modal */}
       <SettingsModal
         isOpen={showSettingsModal}
         onClose={() => setShowSettingsModal(false)}
         settings={settings}
         onUpdateSetting={updateSetting}
         onResetSettings={resetSettings}
+      />
+
+      <CreateAlbumModal
+        isOpen={showCreateAlbumModal}
+        onClose={() => setShowCreateAlbumModal(false)}
+        onUploadAlbum={handleCreateAlbum}
       />
     </div>
   );
