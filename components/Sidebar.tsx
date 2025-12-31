@@ -14,6 +14,7 @@ interface SidebarProps {
   isLoggedIn?: boolean;
   uploading?: boolean;
   onCreateAlbum?: () => void;
+  onCreatePlaylist?: () => void;
 }
 
 const Sidebar: React.FC<SidebarProps> = ({
@@ -25,7 +26,8 @@ const Sidebar: React.FC<SidebarProps> = ({
   customPlaylists,
   isLoggedIn = false,
   uploading = false,
-  onCreateAlbum
+  onCreateAlbum,
+  onCreatePlaylist
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<Song[]>([]);
@@ -259,6 +261,15 @@ const Sidebar: React.FC<SidebarProps> = ({
                   <i className="fas fa-compact-disc text-white"></i>
                 </div>
                 <span className="font-semibold text-sm">Create Album</span>
+              </button>
+              <button
+                onClick={onCreatePlaylist}
+                className="w-full flex items-center p-2 space-x-3 rounded-md transition-all text-left text-gray-400 hover:bg-[#1a1a1a] hover:text-white"
+              >
+                <div className="w-12 h-12 bg-gradient-to-br from-violet-600 to-fuchsia-500 rounded flex items-center justify-center">
+                  <i className="fas fa-plus text-white"></i>
+                </div>
+                <span className="font-semibold text-sm">Create Playlist</span>
               </button>
             </>
           )}

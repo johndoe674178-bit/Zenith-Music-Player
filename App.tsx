@@ -13,6 +13,8 @@ import SearchBar from './components/SearchBar';
 import SleepTimer from './components/SleepTimer';
 import SettingsModal from './components/SettingsModal';
 import CreateAlbumModal from './components/CreateAlbumModal';
+import KeyboardShortcutsModal from './components/KeyboardShortcutsModal';
+import CreatePlaylistModal from './components/CreatePlaylistModal';
 import { ToastProvider, useToast } from './components/Toast';
 import { AuthProvider, useAuth } from './components/AuthContext';
 import { useSupabaseSongs } from './hooks/useSupabaseSongs';
@@ -66,6 +68,8 @@ const AppContent: React.FC = () => {
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [showCreateAlbumModal, setShowCreateAlbumModal] = useState(false);
+  const [showKeyboardShortcuts, setShowKeyboardShortcuts] = useState(false);
+  const [showCreatePlaylistModal, setShowCreatePlaylistModal] = useState(false);
   const [shuffle, setShuffle] = useState(false);
   const [repeat, setRepeat] = useState<RepeatMode>('off');
   const [editingSong, setEditingSong] = useState<Song | null>(null);
@@ -78,6 +82,17 @@ const AppContent: React.FC = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const { showToast } = useToast();
+
+  // Global keyboard listener for '?' to show shortcuts
+  useEffect(() => {
+    const handleGlobalKey = (e: KeyboardEvent) => {
+      if (e.key === '?' && !(e.target instanceof HTMLInputElement) && !(e.target instanceof HTMLTextAreaElement)) {
+        setShowKeyboardShortcuts(true);
+      }
+    };
+    window.addEventListener('keydown', handleGlobalKey);
+    return () => window.removeEventListener('keydown', handleGlobalKey);
+  }, []);
 
   // Combine cloud songs with local/library songs
   const allSongs = useMemo(() => {
@@ -401,6 +416,24 @@ const AppContent: React.FC = () => {
     }
   }, [user, uploadAlbum, showToast]);
 
+  const handleCreatePlaylist = useCallback((name: string, description: string, coverUrl?: string) => {
+    const newPlaylist: Playlist = {
+      id: `playlist-${Date.now()}`,
+      name,
+      description: description || `Playlist by ${user?.email?.split('@')[0] || 'You'}`,
+      coverUrl: coverUrl || `https://picsum.photos/seed/${encodeURIComponent(name)}/400/400`,
+      songs: [],
+      type: 'playlist'
+    };
+    setPlaylists(prev => {
+      const updated = [...prev, newPlaylist];
+      localStorage.setItem('zenith-playlists', JSON.stringify(updated));
+      return updated;
+    });
+    showToast(`Playlist "${name}" created!`, 'success', 'fas fa-list');
+    setSelectedPlaylistId(newPlaylist.id);
+  }, [user, showToast]);
+
   const handleUpdateSongCover = useCallback((songId: string, newCoverUrl: string, albumToApply?: string) => {
     const updateInList = (list: Song[]) => list.map(s => {
       const matches = albumToApply ? s.album === albumToApply : s.id === songId;
@@ -505,6 +538,7 @@ const AppContent: React.FC = () => {
             isLoggedIn={!!user}
             uploading={songsLoading}
             onCreateAlbum={() => setShowCreateAlbumModal(true)}
+            onCreatePlaylist={() => setShowCreatePlaylistModal(true)}
           />
         </div>
 
@@ -676,6 +710,17 @@ const AppContent: React.FC = () => {
         isOpen={showCreateAlbumModal}
         onClose={() => setShowCreateAlbumModal(false)}
         onUploadAlbum={handleCreateAlbum}
+      />
+
+      <KeyboardShortcutsModal
+        isOpen={showKeyboardShortcuts}
+        onClose={() => setShowKeyboardShortcuts(false)}
+      />
+
+      <CreatePlaylistModal
+        isOpen={showCreatePlaylistModal}
+        onClose={() => setShowCreatePlaylistModal(false)}
+        onCreate={handleCreatePlaylist}
       />
     </div>
   );
