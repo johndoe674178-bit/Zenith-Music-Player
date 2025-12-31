@@ -12,6 +12,7 @@ interface UseSupabaseSongsReturn {
     updateSong: (songId: string, updates: { title: string; artist: string; album: string }) => Promise<boolean>;
     uploadAlbum: (songs: { file: File, title: string }[], metadata: { title: string; artist: string; cover?: File }) => Promise<Song[]>;
     togglePublic: (songId: string, isPublic: boolean) => Promise<boolean>;
+    toggleAlbumPublic: (albumName: string, isPublic: boolean) => Promise<boolean>;
     refreshSongs: () => Promise<void>;
 }
 
@@ -205,6 +206,34 @@ export const useSupabaseSongs = (): UseSupabaseSongsReturn => {
         }
     }, [user]);
 
+    // Toggle public status for all songs in an album
+    const toggleAlbumPublic = useCallback(async (albumName: string, isPublic: boolean): Promise<boolean> => {
+        if (!user) {
+            setError('You must be logged in to update songs');
+            return false;
+        }
+
+        try {
+            // Update all songs with this album name owned by the user
+            const { error: updateError } = await supabase
+                .from('songs')
+                .update({ is_public: isPublic })
+                .eq('album', albumName)
+                .eq('user_id', user.id);
+
+            if (updateError) throw updateError;
+
+            // Update local state
+            setSongs((prev) => prev.map((s) =>
+                s.album === albumName ? { ...s, isPublic } : s
+            ));
+            return true;
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'Failed to update album');
+            return false;
+        }
+    }, [user]);
+
     const updateSong = useCallback(async (songId: string, updates: { title: string; artist: string; album: string }): Promise<boolean> => {
         if (!user) {
             setError('You must be logged in to update songs');
@@ -335,6 +364,7 @@ export const useSupabaseSongs = (): UseSupabaseSongsReturn => {
         deleteSong,
         updateSong,
         togglePublic,
+        toggleAlbumPublic,
         refreshSongs: fetchSongs,
     };
 };

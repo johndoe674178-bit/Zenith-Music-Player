@@ -46,7 +46,7 @@ const isElectron = () => {
 
 const AppContent: React.FC = () => {
   const { user, loading: authLoading, signOut } = useAuth();
-  const { songs: cloudSongs, uploadSong, uploadAlbum, deleteSong, updateSong, togglePublic, loading: songsLoading } = useSupabaseSongs();
+  const { songs: cloudSongs, uploadSong, uploadAlbum, deleteSong, updateSong, togglePublic, toggleAlbumPublic, loading: songsLoading } = useSupabaseSongs();
   const { likedSongs, likedSongIds, toggleLike } = useLikedSongs();
   const { publicSongs } = usePublicSongs();
   const { profile, updateDisplayName } = useProfile();
@@ -632,6 +632,13 @@ const AppContent: React.FC = () => {
             <AlbumsView
               albums={derivedAlbums}
               onAlbumSelect={setSelectedPlaylistId}
+              onToggleAlbumPublic={async (albumName, isPublic) => {
+                const success = await toggleAlbumPublic(albumName, isPublic);
+                if (success) {
+                  showToast(`Album "${albumName}" is now ${isPublic ? 'public' : 'private'}`, 'success', 'fas fa-globe');
+                }
+              }}
+              currentUserId={user?.id}
             />
           ) : (
             <MainView
