@@ -300,6 +300,7 @@ const Player: React.FC<PlayerProps> = ({
     <div className="h-24 bg-black border-t border-[#282828] px-4 flex items-center justify-between z-50">
       <audio
         ref={audioRef}
+        crossOrigin="anonymous"
         onTimeUpdate={handleTimeUpdate}
         onLoadedMetadata={handleLoadedMetadata}
         onEnded={handleSongEnd}
