@@ -44,7 +44,14 @@ const MainView: React.FC<MainViewProps> = ({
   onAddToQueue,
   onPlayNext,
 }) => {
-  const headerGradient = playlist.id === 'liked' ? 'from-[#4c1d95]' : playlist.id === 'local' ? 'from-[#065f46]' : 'from-[#2a2a2a]';
+  const headerGradient =
+    playlist.id === 'liked' ? 'from-purple-900/80' :
+      playlist.id === 'local' ? 'from-emerald-900/80' :
+        playlist.id === 'cloud' ? 'from-teal-900/80' :
+          playlist.id === 'recently-played' ? 'from-amber-900/80' :
+            playlist.id === 'discover' ? 'from-pink-900/80' :
+              playlist.id.startsWith('album-') ? 'from-indigo-900/80' :
+                'from-zinc-800/80';
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Modal states
@@ -350,14 +357,39 @@ const MainView: React.FC<MainViewProps> = ({
           </table>
         ) : (
           <div className="flex flex-col items-center justify-center py-20 space-y-4 text-center">
-            <div className="w-20 h-20 rounded-full bg-gray-800 flex items-center justify-center mb-2">
-              <i className={`fas ${playlist.id === 'local' ? 'fa-folder-open' : 'fa-music'} text-4xl text-gray-600`}></i>
+            <div className="w-24 h-24 rounded-full bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center mb-2 shadow-xl">
+              <i className={`fas ${playlist.id === 'cloud' ? 'fa-cloud-upload-alt' :
+                playlist.id === 'liked' ? 'fa-heart' :
+                  playlist.id === 'recently-played' ? 'fa-history' :
+                    playlist.id === 'discover' ? 'fa-globe' :
+                      playlist.id === 'local' ? 'fa-folder-open' :
+                        playlist.id.startsWith('album-') ? 'fa-compact-disc' :
+                          'fa-music'
+                } text-4xl text-gray-500`}></i>
             </div>
-            <h2 className="text-2xl font-bold">Your {playlist.id === 'local' ? 'imports' : 'favorites'} will appear here</h2>
-            <p className="text-gray-400 max-w-sm">
-              {playlist.id === 'local'
-                ? 'Click the plus icon in your library to add audio files from your device.'
-                : 'Start building your collection by liking songs from the home view or search.'}
+            <h2 className="text-2xl font-bold">
+              {playlist.id === 'cloud' ? 'No uploaded songs yet' :
+                playlist.id === 'liked' ? 'No liked songs yet' :
+                  playlist.id === 'recently-played' ? 'No recently played songs' :
+                    playlist.id === 'discover' ? 'Nothing to discover yet' :
+                      playlist.id === 'local' ? 'No local files imported' :
+                        playlist.id.startsWith('album-') ? 'Album is empty' :
+                          'No songs here yet'}
+            </h2>
+            <p className="text-gray-400 max-w-md">
+              {playlist.id === 'cloud'
+                ? 'Upload your music to the cloud and access it anywhere. Click "Upload Music" in the sidebar to get started.'
+                : playlist.id === 'liked'
+                  ? 'Click the heart icon on any song to save it to your collection.'
+                  : playlist.id === 'recently-played'
+                    ? 'Songs you play will appear here for quick access.'
+                    : playlist.id === 'discover'
+                      ? 'Public songs from other users will appear here. Be the first to share!'
+                      : playlist.id === 'local'
+                        ? 'Click the plus icon in your library to add audio files from your device.'
+                        : playlist.id.startsWith('album-')
+                          ? 'This album has no tracks yet.'
+                          : 'Start adding songs to build your collection.'}
             </p>
           </div>
         )}
