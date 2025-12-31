@@ -17,6 +17,7 @@ interface PlayerProps {
   queueCount?: number;
   showQueue?: boolean;
   onSleepTimerEnd?: () => void;
+  onNowPlayingClick?: () => void;
 }
 
 const Player: React.FC<PlayerProps> = ({
@@ -31,6 +32,7 @@ const Player: React.FC<PlayerProps> = ({
   queueCount = 0,
   showQueue = false,
   onSleepTimerEnd,
+  onNowPlayingClick,
 }) => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -305,15 +307,23 @@ const Player: React.FC<PlayerProps> = ({
 
       {/* Song Info */}
       <div className="flex items-center w-[30%] min-w-[240px] space-x-4">
-        <div className="relative group">
-          <img src={currentSong.coverUrl} alt="" className="w-14 h-14 rounded shadow-lg object-cover" />
-          {isPlaying && (
+        <div
+          className="relative group cursor-pointer"
+          onClick={onNowPlayingClick}
+          title="Open Now Playing"
+        >
+          <img src={currentSong.coverUrl} alt="" className="w-14 h-14 rounded shadow-lg object-cover group-hover:opacity-80 transition-opacity" />
+          {isPlaying ? (
             <div className="absolute inset-0 flex items-center justify-center bg-black/40 rounded">
               <div className="flex items-end space-x-0.5 h-4">
                 <div className="w-1 bg-[#1DB954] animate-[bounce_0.5s_infinite_alternate]" style={{ height: '60%' }}></div>
                 <div className="w-1 bg-[#1DB954] animate-[bounce_0.6s_infinite_alternate]" style={{ height: '100%', animationDelay: '0.1s' }}></div>
                 <div className="w-1 bg-[#1DB954] animate-[bounce_0.4s_infinite_alternate]" style={{ height: '40%', animationDelay: '0.2s' }}></div>
               </div>
+            </div>
+          ) : (
+            <div className="absolute inset-0 flex items-center justify-center bg-black/60 rounded opacity-0 group-hover:opacity-100 transition-opacity">
+              <i className="fas fa-expand text-white text-sm"></i>
             </div>
           )}
         </div>

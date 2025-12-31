@@ -15,6 +15,7 @@ import SettingsModal from './components/SettingsModal';
 import CreateAlbumModal from './components/CreateAlbumModal';
 import KeyboardShortcutsModal from './components/KeyboardShortcutsModal';
 import CreatePlaylistModal from './components/CreatePlaylistModal';
+import NowPlayingView from './components/NowPlayingView';
 import { ToastProvider, useToast } from './components/Toast';
 import { AuthProvider, useAuth } from './components/AuthContext';
 import { useSupabaseSongs } from './hooks/useSupabaseSongs';
@@ -70,6 +71,7 @@ const AppContent: React.FC = () => {
   const [showCreateAlbumModal, setShowCreateAlbumModal] = useState(false);
   const [showKeyboardShortcuts, setShowKeyboardShortcuts] = useState(false);
   const [showCreatePlaylistModal, setShowCreatePlaylistModal] = useState(false);
+  const [showNowPlaying, setShowNowPlaying] = useState(false);
   const [shuffle, setShuffle] = useState(false);
   const [repeat, setRepeat] = useState<RepeatMode>('off');
   const [editingSong, setEditingSong] = useState<Song | null>(null);
@@ -664,6 +666,20 @@ const AppContent: React.FC = () => {
         queueCount={queue.length}
         showQueue={showQueue}
         onSleepTimerEnd={handleSleepTimerEnd}
+        onNowPlayingClick={() => setShowNowPlaying(true)}
+      />
+
+      <NowPlayingView
+        isOpen={showNowPlaying}
+        onClose={() => setShowNowPlaying(false)}
+        currentSong={currentSong}
+        isPlaying={isPlaying}
+        onTogglePlay={handleTogglePlay}
+        onNext={handleNext}
+        onPrev={handlePrev}
+        progress={0}
+        currentTime={0}
+        duration={currentSong?.duration || 0}
       />
 
       <AuthModal
